@@ -1,0 +1,5 @@
+examples/*.swp
+examples/*.ll
+examples/*.s
+pass/*.swp
+build
