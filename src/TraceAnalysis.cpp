@@ -23,8 +23,9 @@ char TraceAnalysisPass::ID = 0;
 
 bool TraceAnalysisPass::runOnFunction(Function& F)
 {
-    llvm::errs() << F.getName() << "\n";
-    if (F.getName() != "main") {
+    //llvm::errs() << F.getName() << "\n";
+    if (F.getName() != "main" && F.getName() != "_Z9CodeFightB5cxx11i"
+        && F.getName() != "_Z4findRKSt6vectorIS_IiSaIiEESaIS1_EEiii") {
         return false;
     }
     m_F = &F;
@@ -61,32 +62,12 @@ void TraceAnalysisPass::dump() const
     }
 }
 
-void TraceAnalysisPass::dfs_loop(BasicBlock* BB, Trace currentTrace)
-{
-//    llvm::errs() << "Loop with header " << BB->getName() << "\n";
-//    currentTrace.push_back(BB);
-//    assert(LI->isLoopHeader(BB));
-//    auto loop = LI->getLoopFor(BB);
-//    auto header = loop->getHeader();
-//    assert(header == BB);
-//    for (auto it = llvm::succ_begin(BB); it != llvm::succ_end(BB); ++it) {
-//            currentTrace.push_back(*it);
-//            return;
-//        }
-//        //if (loop->isLoopExiting(*it)) {
-//        //    currentTrace.push_back(*it);
-//        //}
-//        dfs(*it, currentTrace);
-//    }
-}
-
 void TraceAnalysisPass::finishCurrentLoop(BasicBlock* BB, Trace currentTrace)
 {
     assert(LI->isLoopHeader(BB));
     auto loop = LI->getLoopFor(BB);
     for (auto it = llvm::succ_begin(BB); it != llvm::succ_end(BB); ++it) {
         if (!loop->contains(*it)) {
-        //if (loop->isLoopExiting(*it) && !loop->isLoopLatch(*it)) {
             dfs(*it, currentTrace);
         }
     } 
@@ -94,7 +75,7 @@ void TraceAnalysisPass::finishCurrentLoop(BasicBlock* BB, Trace currentTrace)
 
 void TraceAnalysisPass::dfs(BasicBlock* BB, Trace currentTrace)
 {
-    llvm::errs() << BB->getName() << "\n";
+    //llvm::errs() << BB->getName() << "\n";
     currentTrace.push_back(BB);
     if (llvm::succ_empty(BB)) {
         m_traces[m_F].push_back(currentTrace);
@@ -129,47 +110,6 @@ void TraceAnalysisPass::scc_dump() const
         llvm::errs() << "\n";
     }
 }
-
-/*
-// passing Trace by value is a BAD idea
-void TraceAnalysisPass::dfs(BasicBlock* BB, Trace currentTrace)
-{
-    currentTrace.push_back(BB);
-    // Supposig the only bb with no successor is end
-    //if (llvm::succ_empty(BB)) {
-    //    llvm::errs() << "askdjskjf\n";
-    //    m_traces[m_F].push_back(currentTrace);
-    //    currentTrace.clear();
-    //    return;
-    //}
-    BB = &m_F->getBasicBlockList().back();
-    auto it = BB_scc_iterator::begin(BB);
-    while (it != BB_scc_iterator::end(BB)) {
-        llvm::errs() << "-------------------\n";
-        for (auto bb : *it) {
-            currentTrace.push_back(bb);
-            llvm::errs() << bb->getName();
-        }
-       // if (it->size() == 1) {
-       //     dfs(it->front(), currentTrace);
-       // }
-        ++it;
-        llvm::errs() << "----------------------\n";
-    }
-        if (it.isAtEnd()) {
-            llvm::errs() << "is at end\n";
-        }
-
-    m_traces[m_F].push_back(currentTrace);
-    currentTrace.clear();
-    return;
-
-    //for (auto it = llvm::succ_begin(BB); it != llvm::succ_end(BB); ++it) {
-    //    //currentTrace.push_back(*it);
-    //    dfs(*it, currentTrace);
-    //}
-}
-*/
 
 // Automatically enable the pass.
 static void registerTracePass(const llvm::PassManagerBuilder &,

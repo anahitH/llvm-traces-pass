@@ -45,7 +45,6 @@ public:
 
 private:
     void dfs(llvm::BasicBlock* BB, Trace trace = Trace());
-    void dfs_loop(llvm::BasicBlock* BB, Trace trace);
     void finishCurrentLoop(llvm::BasicBlock* BB, Trace currentTrace);
 
     void dump() const;
