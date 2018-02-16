@@ -52,7 +52,7 @@ private:
     const llvm::LoopInfo& m_LI;
     Traces m_traces; 
     std::unordered_set<llvm::BasicBlock*> markedLoopHeaders;
-};
+}; // class TraceAnalysisPass
 
 void TraceAnalysisPass::TraceAnaliserImpl::analyze(Function& F)
 {
